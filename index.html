@@ -154,19 +154,19 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-react-服务端渲染(二)" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-react-服务端渲染(一)" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2018/06/11/react-服务端渲染(二)/">react服务端同构渲染-(使用redux搭建)</a>
+      <a class="article-title" href="/2018/06/11/react-服务端渲染(一)/">react服务端同构渲染-(搭建react环境)</a>
     </h1>
   
 
         
-        <a href="/2018/06/11/react-服务端渲染(二)/" class="archive-article-date">
+        <a href="/2018/06/11/react-服务端渲染(一)/" class="archive-article-date">
   	<time datetime="2018-06-11T09:12:20.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-11</time>
 </a>
         
@@ -174,13 +174,16 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="这一部分是使用-redux-进行服务端渲染"><a href="#这一部分是使用-redux-进行服务端渲染" class="headerlink" title="这一部分是使用 redux 进行服务端渲染"></a>这一部分是使用 redux 进行服务端渲染</h1><h2 id="配置服务端-webpack"><a href="#配置服务端-webpack" class="headerlink" title="配置服务端 webpack"></a>配置服务端 webpack</h2><p>用 webpack 编译服务端,配置很简单,主要是处理样式部分比较麻烦,获取数据这部分很简单.</p>
-<p>做了一下注释方便阅读</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> config = &#123;</span><br><span class="line">  target: <span class="string">"node"</span>, <span class="comment">//target搭建目标 node会吧代码编译为类nodejs环境(使用require 而不是其他来加载chunk)</span></span><br><span class="line">  entry: &#123;</span><br><span class="line">    server: paths.serverJs <span class="comment">//server/app.js</span></span><br><span class="line">  &#125;,</span><br><span class="line">  output: &#123;</span><br><span class="line">    path: paths.serverDist, <span class="comment">//build</span></span><br><span class="line">    filename: <span class="string">"bundle.js"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  externals: [webpackNodeExternals()],</span><br><span class="line">  node: &#123;</span><br><span class="line">    <span class="comment">//打包后的代码__filename和__dirname全部会编译成 '/' 因为这两个变量在webpack中做了一些自定义处理,所以禁用他们</span></span><br><span class="line">    __dirname: <span class="literal">false</span>,</span><br><span class="line">    __filename: <span class="literal">false</span></span><br><span class="line">  &#125;,</span><br><span class="line">  resolve: &#123;</span><br><span class="line">    modules: [<span class="string">"node_modules"</span>, <span class="string">"static"</span>],</span><br><span class="line">    extensions: [<span class="string">"*"</span>, <span class="string">".js"</span>, <span class="string">".json"</span>],</span><br><span class="line">    alias: &#123;</span><br><span class="line">      src: paths.srcPath, <span class="comment">//src</span></span><br><span class="line">      <span class="keyword">static</span>: paths.staticPath <span class="comment">//static</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="built_in">module</span>: &#123;</span><br><span class="line">    rules: [</span><br><span class="line">      &#123;</span><br><span class="line">        test: <span class="regexp">/\.(js|jsx)$/</span>,</span><br><span class="line">        enforce: <span class="string">"pre"</span>,</span><br><span class="line">        exclude: <span class="regexp">/node_modules/</span>,</span><br><span class="line">        use: &#123;</span><br><span class="line">          loader: <span class="string">"babel-loader"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="built_in">module</span>.exports = config;</span><br></pre></td></tr></table></figure>
-<h3 id="服务器端获取数据"><a href="#服务器端获取数据" class="headerlink" title="服务器端获取数据"></a>服务器端获取数据</h3><p>服务端渲染怎么获取数据是一个比较麻烦的问题,刚开始的时候比较迷茫,后来在网上选择后决定通过 react-router 来进行服务端数据获取;</p>
-<p>主要是利用 router 里 loadData 的方法和他所提供的 matchPath</p>
-<p>将获取数据的操作放在 loadData 里面,然后在服务端通过 matchPath 来判断当前路由是否有 loadData 方法,然后执行 loadData 方法来获取数据;</p>
-
+        <p>以前折腾了一段时间的 react ssr,现在总结一下,文采不好,尽量图文结合;</p>
+<p>首先看一看现在的基本信息</p>
+<p><img src="/images/react-ssr/catalog.png" alt=""></p>
+<p>服务端渲染选用的是 koa 框架,因为个人比较熟悉,也可以换成其他框架,不涉及渲染的内容,也就起个简单服务器的作用;</p>
+<p>因为会有 redux,saga,dva 三种服务端模式,所以使用的是 two package 模式,不熟悉的可以用一个就好;</p>
+<p>首先下载依赖<br>npm install lerna koa koa-static koa-logger nodemon –save</p>
+<p>lerna 用于 two package 模式,不需要的不用下,nodemon 用于每次修改后重新启动服务器</p>
+        
+          <a class="article-more-a" href="/2018/06/11/react-服务端渲染(一)/#more">more >></a>
+        
       
 
       
@@ -203,7 +206,161 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2018/06/11/react-服务端渲染(二)/">展开全文 >></a>
+          <a class="article-more-a" href="/2018/06/11/react-服务端渲染(一)/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-Parcel使用记录" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/06/11/Parcel使用记录/">Parcel踩坑记录</a>
+    </h1>
+  
+
+        
+        <a href="/2018/06/11/Parcel使用记录/" class="archive-article-date">
+  	<time datetime="2018-06-11T09:12:20.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-11</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Parcel-踩坑记录"><a href="#Parcel-踩坑记录" class="headerlink" title="Parcel 踩坑记录"></a>Parcel 踩坑记录</h2><p>新出的打包工具 Parcel,号称是零配置,但是还是踩了不少坑,简单记录一下;</p>
+<p>这是官网给出的速度表对比:<br><img src="/images/Parcel踩坑记录/image_1.png" alt=""><br>
+        
+          <a class="article-more-a" href="/2018/06/11/Parcel使用记录/#more">more >></a>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Parcel 打包 踩坑</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/06/11/Parcel使用记录/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-electron问题笔记(二)" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/06/11/electron问题笔记(二)/">electron问题笔记:使用electron-build 打包;</a>
+    </h1>
+  
+
+        
+        <a href="/2018/06/11/electron问题笔记(二)/" class="archive-article-date">
+  	<time datetime="2018-06-11T09:12:20.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-11</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="electron-问题笔记-自动升级配置"><a href="#electron-问题笔记-自动升级配置" class="headerlink" title="electron 问题笔记 : 自动升级配置"></a>electron 问题笔记 : 自动升级配置</h2><hr>
+<p>electron-build 提供的升级方式有很多种 , 目前只预演出了 github 和 http 更新 , 不<br>过足够了 , 这两个应该是最常用的 ;</p>
+        
+          <a class="article-more-a" href="/2018/06/11/electron问题笔记(二)/#more">more >></a>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">electron elecron-build</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/06/11/electron问题笔记(二)/">展开全文 >></a>
         </p>
       
 
@@ -400,166 +557,6 @@
 
 
   
-    <article id="post-antd使用babel-import-plugin问题" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/06/11/antd使用babel-import-plugin问题/">过去杂写整理:使用antd时使用babel-import-plugin的坑</a>
-    </h1>
-  
-
-        
-        <a href="/2018/06/11/antd使用babel-import-plugin问题/" class="archive-article-date">
-  	<time datetime="2018-06-11T09:12:20.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-11</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="在最近的项目中遇到的问题"><a href="#在最近的项目中遇到的问题" class="headerlink" title="在最近的项目中遇到的问题"></a>在最近的项目中遇到的问题</h2><ol>
-<li>引用 babel-import-plugin 报错 “You may need an appropriate loader to handle<br>this file type.”_ webpack 配置如下 :</li>
-</ol>
-        
-          <a class="article-more-a" href="/2018/06/11/antd使用babel-import-plugin问题/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">react antd js</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/06/11/antd使用babel-import-plugin问题/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-react-服务端渲染(一)" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/06/11/react-服务端渲染(一)/">react服务端同构渲染-(搭建react环境)</a>
-    </h1>
-  
-
-        
-        <a href="/2018/06/11/react-服务端渲染(一)/" class="archive-article-date">
-  	<time datetime="2018-06-11T09:12:20.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-11</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>以前折腾了一段时间的 react ssr,现在总结一下,文采不好,尽量图文结合;</p>
-<p>首先看一看现在的基本信息</p>
-<p><img src="/images/react-ssr/catalog.png" alt=""></p>
-<p>服务端渲染选用的是 koa 框架,因为个人比较熟悉,也可以换成其他框架,不涉及渲染的内容,也就起个简单服务器的作用;</p>
-<p>因为会有 redux,saga,dva 三种服务端模式,所以使用的是 two package 模式,不熟悉的可以用一个就好;</p>
-<p>首先下载依赖<br>npm install lerna koa koa-static koa-logger nodemon –save</p>
-<p>lerna 用于 two package 模式,不需要的不用下,nodemon 用于每次修改后重新启动服务器</p>
-        
-          <a class="article-more-a" href="/2018/06/11/react-服务端渲染(一)/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">react ssr</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/06/11/react-服务端渲染(一)/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
     <article id="post-GIT教程" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -609,83 +606,6 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2018/06/11/GIT教程/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Parcel使用记录" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/06/11/Parcel使用记录/">Parcel踩坑记录</a>
-    </h1>
-  
-
-        
-        <a href="/2018/06/11/Parcel使用记录/" class="archive-article-date">
-  	<time datetime="2018-06-11T09:12:20.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-11</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Parcel-踩坑记录"><a href="#Parcel-踩坑记录" class="headerlink" title="Parcel 踩坑记录"></a>Parcel 踩坑记录</h2><p>新出的打包工具 Parcel,号称是零配置,但是还是踩了不少坑,简单记录一下;</p>
-<p>这是官网给出的速度表对比:<br><img src="/images/Parcel踩坑记录/image_1.png" alt=""><br>
-        
-          <a class="article-more-a" href="/2018/06/11/Parcel使用记录/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Parcel 打包 踩坑</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/06/11/Parcel使用记录/">展开全文 >></a>
         </p>
       
 
@@ -767,6 +687,85 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2018/06/11/electron问题笔记(一)/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-react-服务端渲染(二)" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/06/11/react-服务端渲染(二)/">react服务端同构渲染-(使用redux搭建)</a>
+    </h1>
+  
+
+        
+        <a href="/2018/06/11/react-服务端渲染(二)/" class="archive-article-date">
+  	<time datetime="2018-06-11T09:12:20.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-11</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="这一部分是使用-redux-进行服务端渲染"><a href="#这一部分是使用-redux-进行服务端渲染" class="headerlink" title="这一部分是使用 redux 进行服务端渲染"></a>这一部分是使用 redux 进行服务端渲染</h1><h2 id="配置服务端-webpack"><a href="#配置服务端-webpack" class="headerlink" title="配置服务端 webpack"></a>配置服务端 webpack</h2><p>用 webpack 编译服务端,配置很简单,主要是处理样式部分比较麻烦,获取数据这部分很简单.</p>
+<p>做了一下注释方便阅读</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> config = &#123;</span><br><span class="line">  target: <span class="string">"node"</span>, <span class="comment">//target搭建目标 node会吧代码编译为类nodejs环境(使用require 而不是其他来加载chunk)</span></span><br><span class="line">  entry: &#123;</span><br><span class="line">    server: paths.serverJs <span class="comment">//server/app.js</span></span><br><span class="line">  &#125;,</span><br><span class="line">  output: &#123;</span><br><span class="line">    path: paths.serverDist, <span class="comment">//build</span></span><br><span class="line">    filename: <span class="string">"bundle.js"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  externals: [webpackNodeExternals()],</span><br><span class="line">  node: &#123;</span><br><span class="line">    <span class="comment">//打包后的代码__filename和__dirname全部会编译成 '/' 因为这两个变量在webpack中做了一些自定义处理,所以禁用他们</span></span><br><span class="line">    __dirname: <span class="literal">false</span>,</span><br><span class="line">    __filename: <span class="literal">false</span></span><br><span class="line">  &#125;,</span><br><span class="line">  resolve: &#123;</span><br><span class="line">    modules: [<span class="string">"node_modules"</span>, <span class="string">"static"</span>],</span><br><span class="line">    extensions: [<span class="string">"*"</span>, <span class="string">".js"</span>, <span class="string">".json"</span>],</span><br><span class="line">    alias: &#123;</span><br><span class="line">      src: paths.srcPath, <span class="comment">//src</span></span><br><span class="line">      <span class="keyword">static</span>: paths.staticPath <span class="comment">//static</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="built_in">module</span>: &#123;</span><br><span class="line">    rules: [</span><br><span class="line">      &#123;</span><br><span class="line">        test: <span class="regexp">/\.(js|jsx)$/</span>,</span><br><span class="line">        enforce: <span class="string">"pre"</span>,</span><br><span class="line">        exclude: <span class="regexp">/node_modules/</span>,</span><br><span class="line">        use: &#123;</span><br><span class="line">          loader: <span class="string">"babel-loader"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="built_in">module</span>.exports = config;</span><br></pre></td></tr></table></figure>
+<h3 id="服务器端获取数据"><a href="#服务器端获取数据" class="headerlink" title="服务器端获取数据"></a>服务器端获取数据</h3><p>服务端渲染怎么获取数据是一个比较麻烦的问题,刚开始的时候比较迷茫,后来在网上选择后决定通过 react-router 来进行服务端数据获取;</p>
+<p>主要是利用 router 里 loadData 的方法和他所提供的 matchPath</p>
+<p>将获取数据的操作放在 loadData 里面,然后在服务端通过 matchPath 来判断当前路由是否有 loadData 方法,然后执行 loadData 方法来获取数据;</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">react ssr</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/06/11/react-服务端渲染(二)/">展开全文 >></a>
         </p>
       
 
@@ -910,14 +909,6 @@ MathJax.Hub.Queue(function() {
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">electron</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">electron elecron-build</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">Parcel 打包 踩坑</a>
               </li>
              
@@ -926,11 +917,19 @@ MathJax.Hub.Queue(function() {
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">react ssr</a>
+                <a href="javascript:void(0)" class="js-tag color3">electron elecron-build</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">electron</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">react ssr</a>
               </li>
              
               <li class="article-tag-list-item">
